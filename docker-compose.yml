@@ -1,15 +1,30 @@
-version: '3'
+version: '3.8'
 
 services:
-    app:
+    backend:
         build:
             context: .
             dockerfile: Dockerfile
+        depends_on:
+            - db
         ports:
             - "8080:8080"
         restart: unless-stopped
-        networks:
-            - backend
 
-networks:
-    backend:
+    db:
+        image: "mysql:8"
+        #        volumes:
+        #            - db_data:/var/lib/mysql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: nfl-rushing
+            MYSQL_USER: nfl-user
+            MYSQL_PASSWORD: password
+        ports:
+            - "3306:3306"
+
+    #frontend:
+ 
+#volumes:
+#    db_data: {}
