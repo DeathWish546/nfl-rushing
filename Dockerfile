@@ -19,3 +19,4 @@ RUN go build
 EXPOSE 8080
 
 CMD sleep 15 && ./nfl-rushing
+#CMD ./nfl-rushing

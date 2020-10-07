@@ -26,18 +26,19 @@ func main() {
 		return
 	}
 
-	//query := "INSERT INTO playerRushingStats(name, team, position, yards, longest, touchdowns) VALUES (?, ?, ?, ?, ?, ?)"
-	//res, err := db.Query(query, "Yes", "No", "Up", 123, 456, 5)
-	//defer res.Close()
-	//if err != nil {
-	//    log.Fatal("Could not get results: ", err.Error())
-	//}
+//	query := "INSERT INTO playerRushingStats(name, team, position, yards, longest, touchdowns) VALUES (?, ?, ?, ?, ?, ?)"
+//	res, err := db.Query(query, "Yes", "No", "Up", 123, 456, 5)
+//	defer res.Close()
+//	if err != nil {
+//	    log.Fatal("Could not get results: ", err.Error())
+//	}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", sayHello)
-	r.HandleFunc("/1", sayHello2)
 	r.HandleFunc("/upload", uploadData).Methods("POST")
+	r.HandleFunc("/getPlayerData", getAllPlayerData).Methods("POST")
+	r.HandleFunc("/getPlayerCsv", getPlayerCsv).Methods("POST")
 
 	srv := &http.Server{
 		Handler:      r,
@@ -62,15 +63,15 @@ func uploadData(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, allPlayerStats)
 }
 
+func getAllPlayerData(w http.ResponseWriter, r *http.Request) {
+}
+
+func getPlayerCsv(w http.ResponseWriter, r *http.Request) {
+}
+
 func sayHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello World asdflkjasdf")
 	log.Println("said hello")
-}
-
-func sayHello2(w http.ResponseWriter, r *http.Request) {
-	res := nflUtils.Wow()
-	fmt.Fprint(w, res)
-	log.Println("said hello 2")
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

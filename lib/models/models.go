@@ -15,7 +15,7 @@ type PlayerStat struct {
 	Touchdowns       int         `json:"TD"`     //Total Rushing Touchdowns
 	LongestRaw       interface{} `json:"Lng"`    //Some values aren't strings
 	Longest          int         `json:"RL"`     //Longest Rush -- a T represents a touchdown occurred
-	LongestTouchdown bool        `json:"RTD"`    //Whether or not the longest rush has a touchdown
+	LongestTouchdown bool        `json:"-"`    //Whether or not the longest rush has a touchdown
 	FirstDowns       int         `json:"1st"`    //Rushing First Downs
 	FirstDownPercent float64     `json:"1st%"`   //Rushing First Down Percentage
 	Over20Yards      int         `json:"20+"`    //Rushing 20+ Yards Each
