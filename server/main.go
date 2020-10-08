@@ -54,21 +54,21 @@ func (a *App) initializeRoutes() {
 }
 
 func (a *App) uploadData(w http.ResponseWriter, r *http.Request) {
-    log.Println("Uploading player data")
+	log.Println("Uploading player data")
 	var allPlayerStats []models.PlayerStat
 
 	postBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println("Could not read request body", err.Error())
 		respondWithError(w, http.StatusBadRequest, "Could not read request body: "+err.Error())
-        return
+		return
 	}
 
 	allPlayerStats, err = nflUtils.ParsePlayerData(postBody)
 	if err != nil {
 		log.Println("Could not parse player data: ", err.Error())
 		respondWithError(w, http.StatusBadRequest, "Could not parse player data: "+err.Error())
-        return
+		return
 	}
 
 	if len(allPlayerStats) > 0 {
@@ -76,32 +76,32 @@ func (a *App) uploadData(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Could not insert into db: ", err.Error())
 			respondWithError(w, http.StatusInternalServerError, "Could not insert into db: "+err.Error())
-            return
+			return
 		}
 	} else {
 		respondWithError(w, http.StatusBadRequest, "No player data found")
-        return
+		return
 	}
 
 	respondWithJSON(w, http.StatusOK, allPlayerStats)
 }
 
 func (a *App) getAllPlayerData(w http.ResponseWriter, r *http.Request) {
-    log.Println("Retrieving all players")
+	log.Println("Retrieving all players")
 	var allPlayerStats []models.PlayerStat
-    var err error
+	var err error
 	allPlayerStats, err = models.GetAllPlayers(a.DB)
 	if err != nil {
 		log.Println("Could not retrieve player data: ", err.Error())
 		respondWithError(w, http.StatusBadRequest, "Could not retrieve player data: "+err.Error())
-        return
+		return
 	}
 
-    if len(allPlayerStats) == 0 {
+	if len(allPlayerStats) == 0 {
 		log.Println("No players were found")
 		respondWithError(w, http.StatusNoContent, "")
-        return
-    }
+		return
+	}
 
 	respondWithJSON(w, http.StatusOK, allPlayerStats)
 }
@@ -114,10 +114,10 @@ func (a *App) deleteAllPlayerData(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Could not delete from db: ", err.Error())
 		respondWithError(w, http.StatusBadRequest, "No player data found")
-        return
+		return
 	}
 
-    respondWithJSON(w, http.StatusOK, map[string]string{"success": "ok"})
+	respondWithJSON(w, http.StatusOK, map[string]string{"success": "ok"})
 }
 
 func sayHello(w http.ResponseWriter, r *http.Request) {
@@ -133,7 +133,7 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	if err != nil {
 		log.Println("Could not encode JSON properly")
 		respondWithError(w, http.StatusBadRequest, "Could not properly encode JSON: "+err.Error())
-        return
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

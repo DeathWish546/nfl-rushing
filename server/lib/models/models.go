@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"strconv"
 	"strings"
-    "strconv"
 )
 
 type PlayerStat struct {
@@ -87,8 +87,8 @@ func InsertPlayersIntoDB(db *sql.DB, allPlayerData []PlayerStat) error {
 }
 
 func GetAllPlayers(db *sql.DB) ([]PlayerStat, error) {
-    var allPlayerStats []PlayerStat
-    queryStr := `SELECT
+	var allPlayerStats []PlayerStat
+	queryStr := `SELECT
         name,
         team,
         position,
@@ -107,15 +107,15 @@ func GetAllPlayers(db *sql.DB) ([]PlayerStat, error) {
         fumbles
     FROM playerRushingStats;`
 
-    rows, err := db.Query(queryStr)
-    if err != nil {
-        log.Println("Could not read from DB")
-        return nil, err
-    }
+	rows, err := db.Query(queryStr)
+	if err != nil {
+		log.Println("Could not read from DB")
+		return nil, err
+	}
 
-    for rows.Next() {
-        var player PlayerStat
-        err = rows.Scan(
+	for rows.Next() {
+		var player PlayerStat
+		err = rows.Scan(
 			&player.Name,             //1
 			&player.Team,             //2
 			&player.Position,         //3
@@ -132,22 +132,22 @@ func GetAllPlayers(db *sql.DB) ([]PlayerStat, error) {
 			&player.Over20Yards,      //14
 			&player.Over40Yards,      //15
 			&player.Fumbles,          //16
-        )
+		)
 
-        player.YardsRaw = player.Yards
+		player.YardsRaw = player.Yards
 
-        if (player.LongestTouchdown) {
-            player.LongestRaw = strconv.Itoa(player.Longest) + "T"
-        } else {
-            player.LongestRaw = player.Longest
-        }
+		if player.LongestTouchdown {
+			player.LongestRaw = strconv.Itoa(player.Longest) + "T"
+		} else {
+			player.LongestRaw = player.Longest
+		}
 
-        allPlayerStats = append(allPlayerStats, player)
-        if err != nil {
-            log.Println("Could not properly scan row")
-            return nil, err
-        }
-    }
+		allPlayerStats = append(allPlayerStats, player)
+		if err != nil {
+			log.Println("Could not properly scan row")
+			return nil, err
+		}
+	}
 
-    return allPlayerStats, nil
+	return allPlayerStats, nil
 }
