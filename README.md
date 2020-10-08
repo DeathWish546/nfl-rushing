@@ -76,16 +76,17 @@ $ curl -X POST http://localhost:8080/players
 ## Usage
 ### Client
 1. Once the docker containers are running, access the NFL Rushing Data viewer at http://localhost:3000/
-1. Sort the table by *Total Yards*, *Touchdowns*, or *Longest Rush*
-2. Search for a given player by entering their name, or part of their name in the search bar under *Player*
-3. Modify how the pagination is controlled with the buttons below the table.
-4. Download the data displayed on the page (i.e. however it's displayed after sorted, paginated, etc.) by clicking the *Download Page Data* button. It will save as **page_data.csv**
-5. Download all the available data sorted by any of the above conditions or as is by pressing the *Download All Data* button. It will save as **all_data.csv**
-6. Refresh the page to reload any data from the server
+2. Sort the table by *Total Yards*, *Touchdowns*, or *Longest Rush*
+3. Search for a given player by entering their name, or part of their name in the search bar under *Player*
+4. Modify how the pagination is controlled with the buttons below the table.
+5. Download the data displayed on the page (i.e. however it's displayed after sorted, paginated, etc.) by clicking the *Download Page Data* button. It will save as **page_data.csv**
+6. Download all the available data sorted by any of the above conditions or as is by pressing the *Download All Data* button. It will save as **all_data.csv**
+7. Refresh the page to reload any data from the server
 
 ### Server
-1. Stores all player data in a MySQL database
-2. Retrieves all player data upon being requested by the client, or any request to the API as described below.
+1. Can be accessed at http://localhost:8080
+2. Stores all player data in a MySQL database
+3. Retrieves all player data upon being requested by the client, or any request to the API as described below.
 
 ## API Endpoints
 All API Endpoints are accessed via `http://localhost:8080`, and communicates using the Player Object:
@@ -172,7 +173,7 @@ Sample Success Response Body:
 * Identical to the request body (or `rushing.json` if no body was set)
 
 ### `DELETE /players/delete`
-Deletes **ALL** existing player data from the database. Only use if you're certain you want to wipe the data for whatever reason.
+:warning: Deletes **ALL** existing player data from the database. Only use if you're certain you want to wipe the data for whatever reason.
 #### Response
 * `200 OK` on a successful delete
   * Response Body is JSON: message indicating success
