@@ -1,7 +1,6 @@
 import React from 'react';
-import logo from './logo.svg';
+import axios from 'axios';
 import './App.css';
-import { playerData } from './rushing.js'; //TODO REMOVE
 import Table from './Table';
 
 const columnHeaders = {
@@ -83,13 +82,43 @@ const columnHeaders = {
 }
 
 function App() {
+    const apiUrl = "http://localhost:8080/players"
+
+    const [error, setError] = React.useState(null);
+    const [isLoaded, setIsLoaded] = React.useState(false)
+    const [playerData, setPlayerData] = React.useState([])
+
+    React.useEffect(() => {
+        axios.get(apiUrl)
+            .then((response) => {
+                setIsLoaded(true);
+                if (response.data.length && response.data.length) {
+                    setPlayerData(response.data)
+                }
+            },
+            (error) => {
+                setIsLoaded(true);
+                setError(error);
+            })
+    }, [])
+
     const playerColumns = React.useMemo(() => [columnHeaders], [])
-	const allData = React.useMemo(() => playerData, [])
-    return (
-        <div className="App">
-            <Table columns={playerColumns} data={allData} />
-        </div>
-    );
+
+    if (error){
+        return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {
+        return (
+            <div className="App">
+                Loading Data...
+            </div>
+        );
+    } else {
+        return (
+            <div className="App">
+                <Table columns={playerColumns} data={playerData} />
+            </div>
+        );
+    }
 }
 
 export default App;

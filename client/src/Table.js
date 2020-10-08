@@ -39,7 +39,7 @@ const Styles = styled.div`
   }
 `
 
-function Table({ columns, data }) { 
+function Table({ columns, data }) {
 	const defaultColumn = React.useMemo(
 		() => ({
 			Filter: DefaultColumnFilter
@@ -64,12 +64,12 @@ function Table({ columns, data }) {
 		setPageSize,
 		state: { pageIndex, pageSize },
     } = useTable(
-        { 
-            columns, 
+        {
+            columns,
             data,
 			defaultColumn,
             disableMultiSort: true,
-        }, 
+        },
         useFilters,
         useSortBy,
 		usePagination,
@@ -85,14 +85,17 @@ function Table({ columns, data }) {
                             {headerGroup.headers.map(column => (
                                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                                     {column.render('Header')}
-									<div>{column.Header === "Player" ? column.render("Filter") : null}</div>
-                                    <span>
-                                        {column.isSorted
-                                            ? column.isSortedDesc
-                                                ? ' 🔽'
-                                                : ' 🔼'
-                                            : ''}
-                                    </span> 
+									<div>
+                                        {column.Header === "Player" ? column.render("Filter") : null}
+                                        {column.canSort
+                                            ? column.isSorted
+                                                ? column.isSortedDesc
+                                                    ? ' ⬇'
+                                                    : ' ⬆'
+                                                : ' ⇅'
+                                            : ''
+                                        }
+                                    </div>
                                 </th>
                             ))}
                         </tr>

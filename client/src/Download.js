@@ -2,7 +2,7 @@ import React from 'react';
 
 function Download({rows, page}) {
     return (
-        <div className="Download">    
+        <div className="Download">
             <button onClick={() => downloadPageData(page)}>{"Download Page Data"}</button>
             {'  '}
             <button onClick={() => downloadRowsData(rows)}>{"Download All Data"}</button>
