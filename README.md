@@ -91,7 +91,7 @@ $ curl -X POST http://localhost:8080/players
 All API Endpoints are accessed via `http://localhost:8080`, and communicates using the Player Object:
 
 #### `Player Object`
-```json
+```
   {
     "Player": <string>,          //Player's Name
     "Team":   <string>,          //Player's team abbreviation
@@ -121,7 +121,7 @@ Retrieves all the available player data from the server
  * Response Body is JSON: error message describing what went wrong
 
 Sample Success Response Body:
-```json
+```
 [
     {
         "Player": "Joe Banyard",
