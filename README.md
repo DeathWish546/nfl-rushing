@@ -114,11 +114,11 @@ All API Endpoints are accessed via `http://localhost:8080`, and communicates usi
 Retrieves all the available player data from the server
 #### Response
 * `200 OK` on a successful retrieval
- * Response Body is JSON: a list of `Player` objects
+  * Response Body is JSON: a list of `Player` objects
 * `204 No Content` if no data is found
- * No response body
+  * No response body
 * `500 Internal Server Error` if something went wrong on the server side
- * Response Body is JSON: error message describing what went wrong
+  * Response Body is JSON: error message describing what went wrong
 
 Sample Success Response Body:
 ```
@@ -161,11 +161,11 @@ You can make this request with or without a body
 
 #### Response
 * `200 OK` on a successful insert
- * Response Body is JSON: a list of all `Player` objects that were inserted into the db
+  * Response Body is JSON: a list of all `Player` objects that were inserted into the db
 * `400 Bad Request` if the body is malformed or missing data
- * Response Body is JSON: error message describing what went wrong
+  * Response Body is JSON: error message describing what went wrong
 * `500 Internal Server Error` if something went wrong on the server side
- * Response Body is JSON: error message describing what went wrong
+  * Response Body is JSON: error message describing what went wrong
 
 Sample Success Response Body:
 
@@ -175,9 +175,9 @@ Sample Success Response Body:
 Deletes **ALL** existing player data from the database. Only use if you're certain you want to wipe the data for whatever reason.
 #### Response
 * `200 OK` on a successful delete
- * Response Body is JSON: message indicating success
+  * Response Body is JSON: message indicating success
 * `500 Internal Server Error` if something went wrong on the server side
- * Response Body is JSON: error message describing what went wrong
+  * Response Body is JSON: error message describing what went wrong
 
 Sample Success Response Body:
 ```json
