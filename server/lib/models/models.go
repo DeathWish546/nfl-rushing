@@ -14,12 +14,12 @@ type PlayerStat struct {
 	Position         string      `json:"Pos"`    //Player's position
 	AttPerGameAvg    float64     `json:"Att/G"`  //Rushing Attempts Per Game Average
 	Attempts         int         `json:"Att"`    //Rushing Attempts
-	YardsRaw         interface{} `json:"Yds"`    //Some values are not ints
+	YardsRaw         interface{} `json:"Yds"`    //Some values are not ints, raw data
 	Yards            int         `json:"-"`      //Total Rushing Yards
 	AvgYardsPerAtt   float64     `json:"Avg"`    //Rushing Average Yards Per Attempt
 	YardsPerGame     float64     `json:"Yds/G"`  //Rushing Yards Per Game
 	Touchdowns       int         `json:"TD"`     //Total Rushing Touchdowns
-	LongestRaw       interface{} `json:"Lng"`    //Some values aren't strings
+	LongestRaw       interface{} `json:"Lng"`    //Some values aren't strings, raw data
 	Longest          int         `json:"-"`      //Longest Rush -- a T represents a touchdown occurred
 	LongestTouchdown bool        `json:"-"`      //Whether or not the longest rush has a touchdown
 	FirstDowns       int         `json:"1st"`    //Rushing First Downs

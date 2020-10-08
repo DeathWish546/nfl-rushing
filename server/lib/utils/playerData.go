@@ -10,12 +10,15 @@ import (
 	"github.com/DeathWish546/nfl-rushing/lib/models"
 )
 
+//Parses request body into player stats list
 func ParsePlayerData(postBody []byte) ([]models.PlayerStat, error) {
 	playerStats := []models.PlayerStat{}
 	var data []byte
 	var err error
+
 	if len(postBody) > 0 {
 		data = postBody
+		//if no data body was found, use rushing.json as input
 	} else {
 		log.Println("No body found, using rushing.json file")
 		data, err = ioutil.ReadFile("rushing.json")
@@ -25,12 +28,14 @@ func ParsePlayerData(postBody []byte) ([]models.PlayerStat, error) {
 			return nil, err
 		}
 	}
+
 	err = json.Unmarshal(data, &playerStats)
 	if err != nil {
 		log.Println("ERROR unmarshalling json")
 		return nil, err
 	}
 
+	//Data can come in as non-expected formats, need to normalize first
 	playerStats, err = normalizePlayerData(playerStats)
 	if err != nil {
 		log.Println("ERROR normalizing data")
@@ -63,6 +68,7 @@ func normalizePlayerData(playerStats []models.PlayerStat) ([]models.PlayerStat, 
 	return normalizedStats, nil
 }
 
+//yards can come in as string, need to make sure everything is int
 func normalizeYards(yardsRaw interface{}) (int, error) {
 	var yards int
 	var err error
@@ -82,6 +88,7 @@ func normalizeYards(yardsRaw interface{}) (int, error) {
 	return yards, nil
 }
 
+//longest can be string and contain T, need to split it out
 func normalizeLongest(longestRaw interface{}) (int, bool, error) {
 	var longest int
 	var td bool
