@@ -61,7 +61,7 @@ If you have any questions regarding requirements, do not hesitate to email your 
 
 ## Installing and setting up
 ```bash
-$ git clone git@github.com:DeathWish546/nfl-rushing.git
+$ git clone https://github.com/DeathWish546/nfl-rushing.git
 $ cd nfl-rushing
 $ docker-compose up
 ```
