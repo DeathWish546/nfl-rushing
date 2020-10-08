@@ -3,7 +3,7 @@ version: '3.8'
 services:
     backend:
         build:
-            context: .
+            context: ./server
             dockerfile: Dockerfile
         depends_on:
             - db
@@ -11,20 +11,26 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
+    frontend:
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        depends_on:
+            - backend
+        ports: 
+            - "3000:3000"
+        restart: unless-stopped
+        environment:
+            - NODE_ENV=development
+        stdin_open: true
+
     db:
         image: "mysql:8"
         volumes:
             - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-              #            - db_data:/var/lib/mysql
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: password
             MYSQL_DATABASE: nfl
         ports:
             - "3306:3306"
-
-    #frontend:
- 
-              #volumes:
-              #    db_data: {}
-

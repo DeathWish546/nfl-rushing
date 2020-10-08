@@ -1,111 +1,134 @@
 import React from 'react';
-import { useTable, useSortBy } from 'react-table';
+import { useTable, useSortBy, useFilters, usePagination } from 'react-table';
+import styled from 'styled-components';
+import DefaultColumnFilter from './Filter';
+import Pagination from './Pagination';
+import Download from './Download';
+									//TODO add default sorting symbol to columns
 
-const columnHeaders = {
-    Header: "Player Rushing Data",
-    columns: [
-        {
-            Header: "Player",
-            accessor: "Player",
-        },
-        {
-            Header: "Team",
-            accessor: "Team",
-        },
-        {
-            Header: "Position",
-            accessor: "Pos",
-        },
-        {
-            Header: "Attempts",
-            accessor: "Att",
-        },
-        {
-            Header: "Avg Attempts/Game",
-            accessor: "Att/G",
-        },
-        {
-            Header: "Total Yards",
-            accessor: "Yds",
-        },
-        {
-            Header: "Avg Yards/Attempt",
-            accessor: "Avg",
-        },
-        {
-            Header: "Yards/Game",
-            accessor: "Yds/G",
-        },
-        {
-            Header: "Touchdowns",
-            accessor: "TD",
-        },
-        {
-            Header: "Longest Rush",
-            accessor: "Lng",
-        },
-        {
-            Header: "First Downs",
-            accessor: "1st",
-        },
-        {
-            Header: "First Downs %",
-            accessor: "1st%",
-        },
-        {
-            Header: "20+ Yards Each",
-            accessor: "20+",
-        },
-        {
-            Header: "40+ Yards Each",
-            accessor: "40+",
-        },
-        {
-            Header: "Fumbles",
-            accessor: "FUM",
-        },
-    ]
-}
+const Styles = styled.div`
+  padding: 1rem;
 
-function Table({ data }) { 
-    const playerColumns = React.useMemo(() => [columnHeaders], []);
-    debugger;
+  table {
+    border-spacing: 0;
+    border: 1px solid black;
 
-    // Use the state and functions returned from useTable to build your UI
+    tr {
+      :last-child {
+        td {
+          border-bottom: 0;
+        }
+      }
+    }
+
+    th,
+    td {
+      margin: 0;
+      padding: 0.5rem;
+      border-bottom: 1px solid black;
+      border-right: 1px solid black;
+
+      :last-child {
+        border-right: 0;
+      }
+    }
+  }
+
+  .pagination {
+	padding: 0.5rem;
+  }
+`
+
+function Table({ columns, data }) { 
+	const defaultColumn = React.useMemo(
+		() => ({
+			Filter: DefaultColumnFilter
+		}),
+		[]
+	);
+
     const {
         getTableProps,
         getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-    } = useTable({ playerColumns, data })
-
-    // Render the UI for your table
-    return (
-        <table {...getTableProps()}>
-            <thead>
-                {headerGroups.map(headerGroup => (
-                    <tr {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map(column => (
-                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                        ))}
-                    </tr>
-                ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-                {rows.map((row, i) => {
-                    prepareRow(row)
-                    return (
-                        <tr {...row.getRowProps()}>
-                            {row.cells.map(cell => {
-                                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                            })}
-                        </tr>
-                    )
-                })}
-            </tbody>
-        </table>
+		headerGroups,
+		rows,
+		prepareRow,
+		page,
+		canPreviousPage,
+		canNextPage,
+		pageOptions,
+		pageCount,
+		gotoPage,
+		nextPage,
+		previousPage,
+		setPageSize,
+		state: { pageIndex, pageSize },
+    } = useTable(
+        { 
+            columns, 
+            data,
+			defaultColumn,
+            disableMultiSort: true,
+        }, 
+        useFilters,
+        useSortBy,
+		usePagination,
     )
-}
+
+    // Render the UI for table
+    return (
+        <Styles>
+            <table {...getTableProps()}>
+                <thead>
+                    {headerGroups.map(headerGroup => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroup.headers.map(column => (
+                                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                                    {column.render('Header')}
+									<div>{column.Header === "Player" ? column.render("Filter") : null}</div>
+                                    <span>
+                                        {column.isSorted
+                                            ? column.isSortedDesc
+                                                ? ' 🔽'
+                                                : ' 🔼'
+                                            : ''}
+                                    </span> 
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+					{page.map((row, i) => {
+						prepareRow(row)
+						return (
+							<tr {...row.getRowProps()}>
+							{row.cells.map(cell => {
+								return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+							})}
+							</tr>
+						)
+					})}
+                </tbody>
+            </table>
+			<Pagination
+    			gotoPage={gotoPage}
+    			canPreviousPage={canPreviousPage}
+    			canNextPage={canNextPage}
+    			previousPage={previousPage}
+    			nextPage={nextPage}
+    			pageCount={pageCount}
+    			pageIndex={pageIndex}
+    			pageSize={pageSize}
+    			pageOptions={pageOptions}
+    			setPageSize={setPageSize}
+			/>
+			<Download
+				rows={rows}
+				page={page}
+			/>
+        </Styles>
+    )
+};
 
 export default Table;
