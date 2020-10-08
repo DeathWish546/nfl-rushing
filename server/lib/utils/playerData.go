@@ -10,33 +10,34 @@ import (
 	"github.com/DeathWish546/nfl-rushing/lib/models"
 )
 
-func Wow() string {
-	return "Hello"
-}
-
-func ParsePlayerData() []models.PlayerStat {
-	file, err := ioutil.ReadFile("rushing.json")
-
-	if err != nil {
-		log.Println("ERROR reading file: ", err)
-		return nil
-	}
-
+func ParsePlayerData(postBody []byte) ([]models.PlayerStat, error) {
 	playerStats := []models.PlayerStat{}
+	var data []byte
+	var err error
+	if len(postBody) > 0 {
+		data = postBody
+	} else {
+		log.Println("No body found, using rushing.json file")
+		data, err = ioutil.ReadFile("rushing.json")
 
-	err = json.Unmarshal([]byte(file), &playerStats)
+		if err != nil {
+			log.Println("ERROR reading file")
+			return nil, err
+		}
+	}
+	err = json.Unmarshal(data, &playerStats)
 	if err != nil {
-		log.Println("ERROR unmarshalling json: ", err)
-		return nil
+		log.Println("ERROR unmarshalling json")
+		return nil, err
 	}
 
 	playerStats, err = normalizePlayerData(playerStats)
 	if err != nil {
-		log.Println("ERROR normalizing data: ", err)
-		return nil
+		log.Println("ERROR normalizing data")
+		return nil, err
 	}
 
-	return playerStats
+	return playerStats, nil
 }
 
 func normalizePlayerData(playerStats []models.PlayerStat) ([]models.PlayerStat, error) {

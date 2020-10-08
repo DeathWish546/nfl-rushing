@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
-	//  "sort"
+
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 
@@ -16,33 +17,28 @@ import (
 	nflUtils "github.com/DeathWish546/nfl-rushing/lib/utils"
 )
 
-func main() {
-	log.Println("Starting NFL Rushing Service")
+type App struct {
+	Router *mux.Router
+	DB     *sql.DB
+}
 
-	db, err := sql.Open("mysql", "root:password@tcp(db)/nfl")
-	defer db.Close()
+func (a *App) initialize() {
+	var err error
+	a.DB, err = sql.Open("mysql", "root:password@tcp(db)/nfl")
 	if err != nil {
 		log.Fatal("Could not initate db: ", err.Error())
 		return
 	}
 
-//	query := "INSERT INTO playerRushingStats(name, team, position, yards, longest, touchdowns) VALUES (?, ?, ?, ?, ?, ?)"
-//	res, err := db.Query(query, "Yes", "No", "Up", 123, 456, 5)
-//	defer res.Close()
-//	if err != nil {
-//	    log.Fatal("Could not get results: ", err.Error())
-//	}
+	a.Router = mux.NewRouter()
 
-	r := mux.NewRouter()
+	a.initializeRoutes()
+}
 
-	r.HandleFunc("/", sayHello)
-	r.HandleFunc("/upload", uploadData).Methods("POST")
-	r.HandleFunc("/getPlayerData", getAllPlayerData).Methods("POST")
-	r.HandleFunc("/getPlayerCsv", getPlayerCsv).Methods("POST")
-
+func (a *App) run(addr string) {
 	srv := &http.Server{
-		Handler:      r,
-		Addr:         ":8080",
+		Handler:      a.Router,
+		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
@@ -50,28 +46,82 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
-func uploadData(w http.ResponseWriter, r *http.Request) {
+func (a *App) initializeRoutes() {
+	a.Router.HandleFunc("/", sayHello)
+	a.Router.HandleFunc("/players", a.uploadData).Methods("POST")
+	a.Router.HandleFunc("/players", a.getAllPlayerData).Methods("GET")
+	a.Router.HandleFunc("/players/delete", a.deleteAllPlayerData).Methods("DELETE")
+}
+
+func (a *App) uploadData(w http.ResponseWriter, r *http.Request) {
+    log.Println("Uploading player data")
 	var allPlayerStats []models.PlayerStat
-	allPlayerStats = nflUtils.ParsePlayerData()
 
-	//    sort.SliceStable(allPlayerStats, func(i, j int) bool {
-	//        return allPlayerStats[i].Touchdowns < allPlayerStats[j].Touchdowns
-	//    })
+	postBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println("Could not read request body", err.Error())
+		respondWithError(w, http.StatusBadRequest, "Could not read request body: "+err.Error())
+        return
+	}
 
-	w.Header().Set("Content-Type", "application/json")
+	allPlayerStats, err = nflUtils.ParsePlayerData(postBody)
+	if err != nil {
+		log.Println("Could not parse player data: ", err.Error())
+		respondWithError(w, http.StatusBadRequest, "Could not parse player data: "+err.Error())
+        return
+	}
+
+	if len(allPlayerStats) > 0 {
+		err = models.InsertPlayersIntoDB(a.DB, allPlayerStats)
+		if err != nil {
+			log.Println("Could not insert into db: ", err.Error())
+			respondWithError(w, http.StatusInternalServerError, "Could not insert into db: "+err.Error())
+            return
+		}
+	} else {
+		respondWithError(w, http.StatusBadRequest, "No player data found")
+        return
+	}
 
 	respondWithJSON(w, http.StatusOK, allPlayerStats)
 }
 
-func getAllPlayerData(w http.ResponseWriter, r *http.Request) {
+func (a *App) getAllPlayerData(w http.ResponseWriter, r *http.Request) {
+    log.Println("Retrieving all players")
+	var allPlayerStats []models.PlayerStat
+    var err error
+	allPlayerStats, err = models.GetAllPlayers(a.DB)
+	if err != nil {
+		log.Println("Could not retrieve player data: ", err.Error())
+		respondWithError(w, http.StatusBadRequest, "Could not retrieve player data: "+err.Error())
+        return
+	}
+
+    if len(allPlayerStats) == 0 {
+		log.Println("No players were found")
+		respondWithError(w, http.StatusNoContent, "")
+        return
+    }
+
+	respondWithJSON(w, http.StatusOK, allPlayerStats)
 }
 
-func getPlayerCsv(w http.ResponseWriter, r *http.Request) {
+func (a *App) deleteAllPlayerData(w http.ResponseWriter, r *http.Request) {
+	log.Println("WARNING: Deleting all user data")
+	queryStr := "DELETE FROM playerRushingStats;"
+	res, err := a.DB.Query(queryStr)
+	defer res.Close()
+	if err != nil {
+		log.Println("Could not delete from db: ", err.Error())
+		respondWithError(w, http.StatusBadRequest, "No player data found")
+        return
+	}
+
+    respondWithJSON(w, http.StatusOK, map[string]string{"success": "ok"})
 }
 
 func sayHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello World asdflkjasdf")
-	log.Println("said hello")
+	fmt.Fprint(w, "Welcome to the NFL Rushing Data Service")
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
@@ -81,12 +131,20 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatal("Could not encode JSON properly")
+		log.Println("Could not encode JSON properly")
 		respondWithError(w, http.StatusBadRequest, "Could not properly encode JSON: "+err.Error())
-		return
+        return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
+}
+
+func main() {
+	log.Println("Starting NFL Rushing Service")
+
+	a := App{}
+	a.initialize()
+	a.run(":8080")
 }
