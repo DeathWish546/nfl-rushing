@@ -23,8 +23,6 @@ services:
         environment:
             - NODE_ENV=development
         stdin_open: true
-        volumes:
-            - "./client:/app"
 
     db:
         image: "mysql:8"
