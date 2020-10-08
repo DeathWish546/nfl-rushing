@@ -93,7 +93,7 @@ func (a *App) getAllPlayerData(w http.ResponseWriter, r *http.Request) {
 	allPlayerStats, err = models.GetAllPlayers(a.DB)
 	if err != nil {
 		log.Println("Could not retrieve player data: ", err.Error())
-		respondWithError(w, http.StatusBadRequest, "Could not retrieve player data: "+err.Error())
+		respondWithError(w, http.StatusInternalServerError, "Could not retrieve player data: "+err.Error())
 		return
 	}
 
@@ -113,7 +113,7 @@ func (a *App) deleteAllPlayerData(w http.ResponseWriter, r *http.Request) {
 	defer res.Close()
 	if err != nil {
 		log.Println("Could not delete from db: ", err.Error())
-		respondWithError(w, http.StatusBadRequest, "No player data found")
+		respondWithError(w, http.StatusInternalServerError, "Could not delete from db: "+err.Error())
 		return
 	}
 
